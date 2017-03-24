@@ -1,0 +1,32 @@
+#!/usr/bin/env ruby
+require 'bundler/setup'
+require 'kinksync'
+
+# -h or --help as argument
+unless (ARGV & ['-h', '--help']).empty?
+  STDOUT.puts <<-EOF
+  Usage: kinsync [-h] [PATHS_LIST]
+
+  Sync files located all over the directory tree in different computers using any cloud storage
+
+  Without arguments:
+    Sync all files under remote cloud path with local storage
+
+  Optional arguments:
+    -h, --help              Show this help message and exit
+    [FILE_OR_PATHS_LIST]    Sync all files inside each path, or the file itself
+  EOF
+  exit
+end
+
+# normal execution
+Kinksync.configure do |config|
+  config.remote_path = '~/MEGA/kinksync'
+end
+
+Kinksync.sync(ARGV)
+
+# Arguments?
+# Arguments -> list of local files or directories to be synced
+# => For each file or directory
+# No arguments:
