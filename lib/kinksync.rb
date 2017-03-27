@@ -55,7 +55,10 @@ module Kinksync
   #     'a/relative/path'
   #   ])
   #
-  def self.sync(paths_to_sync = [Kinksync.configuration.remote_path])
-    paths_to_sync.each { |p| Path2Sync.new(p).sync }
+  def self.sync(paths_to_sync)
+    synced = []
+    paths_to_sync = [Kinksync.configuration.remote_path] if paths_to_sync.empty?
+    paths_to_sync.each { |p| synced += Path2Sync.new(p).sync }
+    synced
   end
 end

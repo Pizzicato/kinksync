@@ -24,9 +24,13 @@ Kinksync.configure do |config|
   config.remote_path = '~/MEGA/kinksync'
 end
 
-Kinksync.sync(ARGV)
-
-# Arguments?
-# Arguments -> list of local files or directories to be synced
-# => For each file or directory
-# No arguments:
+puts "Using #{Kinksync.configuration.remote_path} as remote path."
+puts 'Kinksyncing...'
+synced = Kinksync.sync(ARGV)
+puts 'Done!'
+if synced.empty?
+  puts 'All up to date, nothing synced.'
+else
+  puts 'Naughtily synced files:'
+  synced.each { |f| puts f.sub(Kinksync.configuration.remote_path,'') }
+end

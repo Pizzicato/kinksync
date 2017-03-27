@@ -15,13 +15,28 @@ module Kinksync
 
     #
     # Sync a file, copying origin over destination
+    # @return file or nil if file is already synced
     #
     def sync
-      origin, destination = prepare_for_sync
-      FileUtils.cp(origin, destination)
+      if File.exist?(@twin_file) && FileUtils.identical?(@file, @twin_file)
+        nil
+      else
+        origin = newer
+        destination = twin_file(origin)
+        FileUtils.mkdir_p(File.dirname(@twin_file))
+        FileUtils.cp(origin, destination)
+        @file
+      end
     end
 
     private
+
+    #
+    # Return newer file
+    #
+    def newer
+      FileUtils.uptodate?(@file, [@twin_file]) ? @file : @twin_file
+    end
 
     #
     # Gets twin file of file provided
@@ -41,32 +56,6 @@ module Kinksync
     #
     def remote?(file)
       File.dirname(file).start_with?(Kinksync.configuration.remote_path)
-    end
-
-    #
-    # Decides which file will be origin or destination and makes destination
-    # directory tree if needed
-    # @return origin, destination [Array of Strings]
-    #
-    def prepare_for_sync
-      if File.exist?(@twin_file)
-        if newer?(@twin_file)
-          [@twin_file, @file]
-        else
-          [@file, @twin_file]
-        end
-      else
-        FileUtils.mkdir_p(File.dirname(@twin_file))
-        [@file, @twin_file]
-      end
-    end
-
-    #
-    # Decides whether a file is newer or older than its twin_file
-    # @param file [String]
-    #
-    def newer?(file)
-      FileUtils.uptodate?(file, [twin_file(file)])
     end
   end
 end

@@ -14,12 +14,15 @@ module Kinksync
 
     #
     # Syncs all files in path and its subdirectories, ignores symlinks
+    # @return lists of synced files, only including those changed
     #
     def sync
+      synced = []
       files_to_sync = Find.find(@path).select do |f|
         File.file?(f) && !File.symlink?(f)
       end
-      files_to_sync.each { |f| File2Sync.new(f).sync }
+      files_to_sync.each { |f| synced.push(f) if File2Sync.new(f).sync }
+      synced
     end
   end
 end
