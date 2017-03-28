@@ -6,6 +6,7 @@ module Kinksync
   class Path2Sync
     #
     # Configures a Path2Sync class
+    #
     # @param path [String] local or remote path to sync
     #
     def initialize(path)
@@ -14,6 +15,7 @@ module Kinksync
 
     #
     # Syncs all files in path and its subdirectories, ignores symlinks
+    #
     # @return lists of synced files, only including those changed
     #
     def sync

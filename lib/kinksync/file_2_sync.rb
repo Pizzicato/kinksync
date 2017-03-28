@@ -6,6 +6,7 @@ module Kinksync
   class File2Sync
     #
     # Configures a File2Sync class
+    #
     # @param file [String] local or remote file to sync
     #
     def initialize(file)
@@ -15,6 +16,7 @@ module Kinksync
 
     #
     # Sync a file, copying origin over destination
+    #
     # @return file or nil if file is already synced
     #
     def sync
@@ -40,6 +42,7 @@ module Kinksync
 
     #
     # Gets twin file of file provided
+    #
     # @param file [String] file to get twin from
     #
     def twin_file(file)
@@ -52,6 +55,7 @@ module Kinksync
 
     #
     # Decides whether a file is remote or local
+    #
     # @param file [String]
     #
     def remote?(file)

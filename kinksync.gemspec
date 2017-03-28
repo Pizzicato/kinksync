@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Pablo']
   spec.email         = ['pabloguaza@gmail.com']
 
-  spec.summary       = 'Sync files from root directory'
+  spec.summary       = 'Sync files all over tree directory with any cloud storage mounted on your file system'
   spec.homepage      = 'https://github.com/Pizzicato/kinksync'
   spec.license       = 'MIT'
 
@@ -25,8 +25,8 @@ Gem::Specification.new do |spec|
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
   end
-  spec.bindir        = 'exe'
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
+  spec.bindir        = 'bin'
+  spec.executables   << 'kinksync'
   spec.require_paths = ['lib']
 
   spec.add_development_dependency 'bundler', '~> 1.14'
