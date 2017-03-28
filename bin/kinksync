@@ -5,7 +5,7 @@ require 'kinksync'
 # -h or --help as argument
 unless (ARGV & ['-h', '--help']).empty?
   STDOUT.puts <<-EOF
-  Usage: kinsync [-h] [PATHS_LIST]
+  Usage: kinksync [-h] [PATHS_LIST]
 
   Sync files located all over the directory tree in different computers using any cloud storage
 
@@ -32,5 +32,5 @@ if synced.empty?
   puts 'All up to date, nothing synced.'
 else
   puts 'Naughtily synced files:'
-  synced.each { |f| puts f.sub(Kinksync.configuration.remote_path,'') }
+  synced.each { |f| puts f.sub(Kinksync.configuration.remote_path, '') }
 end
