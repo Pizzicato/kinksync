@@ -1,6 +1,6 @@
 # Kinksync
 
-Kinksync is a simple gem that let's you synchronize files all over yout directory tree with any cloud storage mounted on your file system. If you have to similar systems in different computers and want to share certain configuration files, Kinksync will help you do it easily.
+Kinksync is a simple gem that let's you synchronize files all over your directory tree with any cloud storage mounted on your file system. If you have two similar systems in different computers and want to share certain configuration files, Kinksync will help you do it easily.
 
 ## Installation
 
