@@ -3,6 +3,11 @@ require 'bundler/setup'
 require 'kinksync'
 require 'getoptlong'
 
+Signal.trap('INT') {
+  puts "\nBye! Behave!"
+  exit 130
+}
+
 options = GetoptLong.new(
   ['--help', '-h', GetoptLong::NO_ARGUMENT],
   ['--version', '-v', GetoptLong::NO_ARGUMENT],
@@ -36,14 +41,21 @@ Options:
     end
   end
 rescue
-  puts "Invalid option: See 'kinksync --help'"
+  puts "Invalid option. Run 'kinksync --help'"
   exit
 end
 
 if !Kinksync.configuration.remote_path
   STDOUT.puts 'You haven\'t set your cloud storage location yet. '\
-              'Tell me where it is, please'
-  Kinksync.configure { |config| config.remote_path = gets.chomp }
+              'Tell me where it is, please:'
+  begin
+    path = File.expand_path(STDIN.gets.chomp)
+    Kinksync.configure { |config| config.remote_path = path }
+  rescue StandardError => e
+    puts e.message
+    puts 'Try again or exit (CTRL-C):'
+    retry
+  end
 else
   puts "Using #{Kinksync.configuration.remote_path} as remote path."
 end

@@ -25,7 +25,7 @@ And then execute:
 
 Simple run it from your terminal.
 ```
-$ kinksync [-h] [PATHS_LIST]
+$ kinksync [OPTION] [PATHS_LIST]
 ```
 
 ### Without arguments
@@ -33,6 +33,7 @@ Sync all files under remote cloud path with local storage
 
 ### Optional arguments
 * `-h, --help` Show this help message and exit
+* `-v, --version` Show version and exit
 * `[FILE_OR_PATHS_LIST]` Sync all files inside each path, or the file itself
 
 ## Development

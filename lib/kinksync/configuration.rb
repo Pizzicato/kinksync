@@ -40,10 +40,10 @@ module Kinksync
     # Sets absolute path of remote path
     #
     # @return [String] remote path
-    def remote_path=(remote_path)
-      remote_path = File.expand_path(remote_path)
-      raise "No such a directory: #{remote_path}" unless File.exist?(remote_path)
-      @config[:remote_path] = remote_path
+    def remote_path=(path)
+      path = File.expand_path(path)
+      raise StandardError, "Not a valid directory: #{path}" unless File.directory?(path)
+      @config[:remote_path] = path
       config_to_file
     end
 
