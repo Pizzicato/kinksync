@@ -26,7 +26,6 @@ describe Kinksync, '#configuration' do
     end
   end
   describe '#sync' do
-    include FakeFS::SpecHelpers
     before do
       Kinksync.configure { |config| config.remote_path = '~/remote/path/' }
       path = Kinksync.configuration.remote_path + '/subdir'

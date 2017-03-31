@@ -10,7 +10,10 @@ module Kinksync
     # @param path [String] local or remote path to sync
     #
     def initialize(path)
-      @path = File.expand_path(path)
+      path = File.expand_path(path)
+      # TODO: Manage path and files not valid
+      raise 'Not valid path' unless File.exist?(path)
+      @path = path
     end
 
     #

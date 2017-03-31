@@ -1,4 +1,5 @@
 require 'find'
+require 'yaml'
 
 require 'kinksync/version'
 require 'kinksync/configuration'
@@ -44,13 +45,13 @@ module Kinksync
   #
   # @return Empty Configuration object
   def self.reset
-    @configuration = nil
+    @configuration.reset
   end
 
   # Syncs lists of files and paths recieved as arguments. If no arg is provided
   # syncs all files in remote path
   #
-  # @param paths_to_sync [Array] List of files and paths to sync
+  # @param paths [Array] List of files and paths to sync
   #
   # @example
   #   Kinksync.sync([
@@ -60,10 +61,11 @@ module Kinksync
   #     'a/relative/path'
   #   ])
   #
-  def self.sync(paths_to_sync = [])
+  def self.sync(paths = nil)
+    return unless configuration.valid?
     synced = []
-    paths_to_sync = [Kinksync.configuration.remote_path] if paths_to_sync.empty?
-    paths_to_sync.each { |p| synced += Path2Sync.new(p).sync }
+    paths ||= [configuration.remote_path]
+    paths.each { |p| synced += Path2Sync.new(p).sync }
     synced
   end
 end

@@ -1,36 +1,71 @@
 #!/usr/bin/env ruby
 require 'bundler/setup'
 require 'kinksync'
+require 'getoptlong'
 
-# -h or --help as argument
-unless (ARGV & ['-h', '--help']).empty?
-  STDOUT.puts <<-EOF
-  Usage: kinksync [-h] [PATHS_LIST]
+options = GetoptLong.new(
+  ['--help', '-h', GetoptLong::NO_ARGUMENT],
+  ['--version', '-v', GetoptLong::NO_ARGUMENT],
+  ['--cloud_path', '-c', GetoptLong::REQUIRED_ARGUMENT]
+)
 
-  Sync files located all over the directory tree in different computers using any cloud storage
+options.quiet = true
 
-  Without arguments:
-    Sync all files under remote cloud path with local storage
+begin
+  options.each do |option|
+    case option
+    when '--help'
+      STDOUT.puts <<-EOF
+Usage: kinksync [OPTION] [PATHS_LIST]
 
-  Optional arguments:
-    -h, --help              Show this help message and exit
-    [FILE_OR_PATHS_LIST]    Sync all files inside each path, or the file itself
-  EOF
+Sync files located all over the directory tree in different computers using any cloud storage
+
+Without arguments:
+  Sync all files under remote cloud path with local storage
+
+[PATHS_LIST] Sync recursively all files in each path
+
+Options:
+  -h, --help                      Show this help message and exit
+  -v, --version                   Show version and exit
+      EOF
+      exit
+    when '--version'
+      STDOUT.puts Kinksync::VERSION
+      exit
+    end
+  end
+rescue
+  puts "Invalid option: See 'kinksync --help'"
   exit
 end
 
-# normal execution
-Kinksync.configure do |config|
-  config.remote_path = '~/MEGA/kinksync'
+if !Kinksync.configuration.remote_path
+  STDOUT.puts 'You haven\'t set your cloud storage location yet. '\
+              'Tell me where it is, please'
+  Kinksync.configure { |config| config.remote_path = gets.chomp }
+else
+  puts "Using #{Kinksync.configuration.remote_path} as remote path."
 end
 
-puts "Using #{Kinksync.configuration.remote_path} as remote path."
 puts 'Kinksyncing...'
-synced = Kinksync.sync(ARGV)
-puts 'Done!'
-if synced.empty?
-  puts 'All up to date, nothing synced.'
+begin
+  synced = ARGV.empty? ? Kinksync.sync : Kinksync.sync(ARGV)
+rescue
+  puts 'Not a valid path'
+  exit
+end
+
+if !synced
+  puts 'Something went wrong. Your configuration seems to be invalid.'
+  puts "Delete or edit manually #{Kinksync::Configuration::CONFIG_FILE} \
+        and try again"
 else
-  puts 'Naughtily synced files:'
-  synced.each { |f| puts f.sub(Kinksync.configuration.remote_path, '') }
+  puts 'Done!'
+  if synced.empty?
+    puts 'All up to date, nothing synced.'
+  else
+    puts 'Synced files:'
+    synced.each { |f| puts f.sub(Kinksync.configuration.remote_path, '') }
+  end
 end

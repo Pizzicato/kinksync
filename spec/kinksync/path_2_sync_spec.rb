@@ -15,7 +15,6 @@ module Kinksync
     end
 
     describe '#sync' do
-      include FakeFS::SpecHelpers
       before do
         Kinksync.configure { |config| config.remote_path = '~/remote/path/' }
         @multi_dir, @one_dir = create_directory_tree('~/subdir')

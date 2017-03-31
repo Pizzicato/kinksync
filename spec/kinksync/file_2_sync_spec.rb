@@ -1,5 +1,3 @@
-require 'fakefs/spec_helpers'
-
 require_relative '../spec_helper'
 
 module Kinksync
@@ -21,7 +19,6 @@ module Kinksync
     end
 
     describe '#sync' do
-      include FakeFS::SpecHelpers
       before do
         Kinksync.configure { |config| config.remote_path = '~/remote/path/' }
         @dir = File.expand_path('~/subdir')

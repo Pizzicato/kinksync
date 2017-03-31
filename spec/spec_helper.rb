@@ -1,5 +1,6 @@
 require 'bundler/setup'
 require 'kinksync'
+require 'fakefs/spec_helpers'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -8,6 +9,7 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+  config.include FakeFS::SpecHelpers
 end
 
 def random_string(n_chars = 8)
