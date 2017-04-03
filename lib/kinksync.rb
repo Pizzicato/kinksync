@@ -48,24 +48,17 @@ module Kinksync
     @configuration.reset
   end
 
-  # Syncs lists of files and paths recieved as arguments. If no arg is provided
+  # Syncs a path recursively or file recieved as argument. If no arg is provided
   # syncs all files in remote path
   #
-  # @param paths [Array] List of files and paths to sync
+  # @param paths [String] Path to sync
   #
   # @example
-  #   Kinksync.sync([
-  #     'a_file.mp3',
-  #     '/an/absolute/path/',
-  #     'another_file.avi',
-  #     'a/relative/path'
-  #   ])
+  #   Kinksync.sync('this/is/a/path')
   #
-  def self.sync(paths = nil)
+  def self.sync(path = nil)
     return unless configuration.valid?
-    synced = []
-    paths ||= [configuration.remote_path]
-    paths.each { |p| synced += Path2Sync.new(p).sync }
-    synced
+    path ||= configuration.remote_path
+    Path2Sync.new(path).sync
   end
 end

@@ -3,16 +3,45 @@ require 'bundler/setup'
 require 'kinksync'
 require 'getoptlong'
 
-Signal.trap('INT') {
+def display_conf_error_messagge
+  puts 'Something went wrong. Your configuration seems to be invalid.'
+  puts "Delete or edit manually #{Kinksync::Configuration::CONFIG_FILE} \
+        and try again"
+end
+
+def display_sync_info(synced)
+  if synced.empty?
+    puts 'All up to date, nothing synced.'
+  else
+    puts 'Synced files:'
+    synced.each { |f| puts f.sub(Kinksync.configuration.remote_path, '') }
+  end
+end
+
+Signal.trap('INT') do
   puts "\nBye! Behave!"
   exit 130
-}
+end
 
 options = GetoptLong.new(
   ['--help', '-h', GetoptLong::NO_ARGUMENT],
-  ['--version', '-v', GetoptLong::NO_ARGUMENT],
-  ['--cloud_path', '-c', GetoptLong::REQUIRED_ARGUMENT]
+  ['--version', '-v', GetoptLong::NO_ARGUMENT]
 )
+
+def display_conf_error_messagge
+  puts 'Something went wrong. Your configuration seems to be invalid.'
+  puts "Delete or edit manually #{Kinksync::Configuration::CONFIG_FILE} \
+        and try again"
+end
+
+def display_sync_info(synced)
+  if synced.empty?
+    puts 'All up to date, nothing synced.'
+  else
+    puts 'Synced files:'
+    synced.each { |f| puts f.sub(Kinksync.configuration.remote_path, '') }
+  end
+end
 
 options.quiet = true
 
@@ -49,8 +78,8 @@ if !Kinksync.configuration.remote_path
   STDOUT.puts 'You haven\'t set your cloud storage location yet. '\
               'Tell me where it is, please:'
   begin
-    path = File.expand_path(STDIN.gets.chomp)
-    Kinksync.configure { |config| config.remote_path = path }
+    remote_path = File.expand_path(STDIN.gets.chomp)
+    Kinksync.configure { |config| config.remote_path = remote_path }
   rescue StandardError => e
     puts e.message
     puts 'Try again or exit (CTRL-C):'
@@ -60,24 +89,26 @@ else
   puts "Using #{Kinksync.configuration.remote_path} as remote path."
 end
 
-puts 'Kinksyncing...'
-begin
-  synced = ARGV.empty? ? Kinksync.sync : Kinksync.sync(ARGV)
-rescue
-  puts 'Not a valid path'
-  exit
-end
-
-if !synced
-  puts 'Something went wrong. Your configuration seems to be invalid.'
-  puts "Delete or edit manually #{Kinksync::Configuration::CONFIG_FILE} \
-        and try again"
+if ARGV.empty?
+  puts 'Kinksyncing all files in your cloud storage location...'
+  Kinksync.sync ? puts('Done!') : display_conf_error_messagge
 else
-  puts 'Done!'
-  if synced.empty?
-    puts 'All up to date, nothing synced.'
-  else
-    puts 'Synced files:'
-    synced.each { |f| puts f.sub(Kinksync.configuration.remote_path, '') }
+  synced = []
+  ARGV.each do |path|
+    begin
+      Kinksync.sync(path) ? synced.push(path) : display_conf_error_messagge
+    rescue => e
+      loop do
+        puts e.message + '. Continue? (Y/n)'
+        option = STDIN.gets.chomp
+        if %w(n no).any? { |v| v == option.downcase }
+          display_sync_info(synced)
+          exit
+        end
+        break if %W(y yes \n).any? { |v| v == option.downcase }
+        puts "OP" + option
+      end
+    end
   end
 end
+display_sync_info(synced)
