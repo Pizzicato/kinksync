@@ -12,7 +12,9 @@ module Kinksync
     def initialize(path)
       path = File.expand_path(path)
       # TODO: Manage path and files not valid
-      raise StandardError, "#{path} is not valid path" unless File.exist?(path)
+      unless File.exist?(path)
+        raise Error::InvalidSyncPath, "#{path} is not a valid path"
+      end
       @path = path
     end
 

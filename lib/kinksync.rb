@@ -5,6 +5,8 @@ require 'kinksync/version'
 require 'kinksync/configuration'
 require 'kinksync/path_2_sync'
 require 'kinksync/file_2_sync'
+require 'kinksync/errors/configuration'
+require 'kinksync/errors/path_2_sync'
 
 ##
 # Kynsync parent module for all classes.

@@ -2,46 +2,66 @@
 require 'bundler/setup'
 require 'kinksync'
 require 'getoptlong'
+require 'io/console'
 
-def display_conf_error_messagge
-  puts 'Something went wrong. Your configuration seems to be invalid.'
-  puts "Delete or edit manually #{Kinksync::Configuration::CONFIG_FILE} \
-        and try again"
+#
+# Returns console output in red
+def error(text)
+  "\e[31m#{text}\e[0m"
 end
 
+#
+# Returns console output in yellow
+def warning(text)
+  "\e[33m#{text}\e[0m"
+end
+
+#
+# Returns console output in blue
+def info(text)
+  "\e[34m#{text}\e[0m"
+end
+
+#
+# Display text message in case of configuration error
+def display_conf_error_message
+  puts "#{error('ERROR')}: Something went wrong. Your configuration seems to " \
+        'be invalid.'
+  puts "Delete or edit manually #{Kinksync::Configuration::CONFIG_FILE} " \
+       'and try again.'
+end
+
+#
+# Display sync info
+# @param [Array of Strings] paths synced
 def display_sync_info(synced)
   if synced.empty?
     puts 'All up to date, nothing synced.'
   else
-    puts 'Synced files:'
-    synced.each { |f| puts f.sub(Kinksync.configuration.remote_path, '') }
+    puts "#{synced.length} files synced."
+    puts "Check #{Kinksync::Configuration::CONFIG_DIR}/last_sync for " \
+          'more information'
   end
 end
 
+def log_synced_to_file(synced)
+  # TODO: last_sync constant
+  File.open("#{Kinksync::Configuration::CONFIG_DIR}/last_sync", 'w') do |file|
+    synced.each { |f| file.puts f.sub(Kinksync.configuration.remote_path, '') }
+  end
+end
+
+# Trap CTRL-C
 Signal.trap('INT') do
   puts "\nBye! Behave!"
   exit 130
 end
 
+# Set command options
 options = GetoptLong.new(
   ['--help', '-h', GetoptLong::NO_ARGUMENT],
   ['--version', '-v', GetoptLong::NO_ARGUMENT]
 )
-
-def display_conf_error_messagge
-  puts 'Something went wrong. Your configuration seems to be invalid.'
-  puts "Delete or edit manually #{Kinksync::Configuration::CONFIG_FILE} \
-        and try again"
-end
-
-def display_sync_info(synced)
-  if synced.empty?
-    puts 'All up to date, nothing synced.'
-  else
-    puts 'Synced files:'
-    synced.each { |f| puts f.sub(Kinksync.configuration.remote_path, '') }
-  end
-end
 
 options.quiet = true
 
@@ -71,44 +91,76 @@ Options:
   end
 rescue
   puts "Invalid option. Run 'kinksync --help'"
-  exit
+  exit 4
 end
 
-if !Kinksync.configuration.remote_path
+# Check remote path configuration
+unless Kinksync.configuration.remote_path
   STDOUT.puts 'You haven\'t set your cloud storage location yet. '\
               'Tell me where it is, please:'
-  begin
-    remote_path = File.expand_path(STDIN.gets.chomp)
-    Kinksync.configure { |config| config.remote_path = remote_path }
-  rescue StandardError => e
-    puts e.message
-    puts 'Try again or exit (CTRL-C):'
-    retry
-  end
-else
-  puts "Using #{Kinksync.configuration.remote_path} as remote path."
-end
-
-if ARGV.empty?
-  puts 'Kinksyncing all files in your cloud storage location...'
-  Kinksync.sync ? puts('Done!') : display_conf_error_messagge
-else
-  synced = []
-  ARGV.each do |path|
+  loop do
+    remote_path = STDIN.gets.chomp
+    next if remote_path.empty?
     begin
-      Kinksync.sync(path) ? synced.push(path) : display_conf_error_messagge
-    rescue => e
-      loop do
-        puts e.message + '. Continue? (Y/n)'
-        option = STDIN.gets.chomp
-        if %w(n no).any? { |v| v == option.downcase }
-          display_sync_info(synced)
-          exit
-        end
-        break if %W(y yes \n).any? { |v| v == option.downcase }
-        puts "OP" + option
-      end
+      Kinksync.configure { |config| config.remote_path = remote_path }
+    rescue Kinksync::Error::InvalidRemotePath => e
+      puts e.message
+      puts 'Try again or exit (Ctrl-C):'
+    else
+      break
     end
   end
 end
-display_sync_info(synced)
+
+puts "Using #{Kinksync.configuration.remote_path} as remote path."
+
+# Sync
+synced = []
+if ARGV.empty?
+  puts info('Kinksyncing all files in your cloud storage location.')
+  synced = Kinksync.sync
+  if synced
+    puts info('Done!')
+    display_sync_info(synced)
+  else
+    display_conf_error_message
+    exit 4
+  end
+else
+  puts info('Kinksyncing...')
+  ARGV.each do |path|
+    puts " * #{path}"
+    begin
+      synced_path = Kinksync.sync(path)
+      if synced_path
+        synced += synced_path
+      else
+        display_conf_error_message
+        exit 5
+      end
+    rescue Kinksync::Error::InvalidSyncPath => e
+      print "#{warning('Warning')}: #{e.message}"
+      if path.equal?(ARGV.last)
+        puts '.'
+      else
+        print '. Ignore and continue syncing? (Y/n) '
+        loop do
+          option = STDIN.getch.chomp
+          case option
+          when '', 'y', 'Y'
+            puts option
+            break
+          when 'n', 'N'
+            puts option
+            # TODO: Arreglar este pifostio
+            display_sync_info(synced)
+            exit
+          end
+        end
+      end
+    end
+  end
+  puts info('Done!')
+  display_sync_info(synced)
+  log_synced_to_file(synced)
+end

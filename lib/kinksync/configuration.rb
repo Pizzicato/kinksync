@@ -42,7 +42,9 @@ module Kinksync
     # @return [String] remote path
     def remote_path=(path)
       path = File.expand_path(path)
-      raise StandardError, "Not a valid directory: #{path}" unless File.directory?(path)
+      unless File.directory?(path)
+        raise Error::InvalidRemotePath, "Not a valid directory: #{path}"
+      end
       @config[:remote_path] = path
       config_to_file
     end
