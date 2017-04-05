@@ -16,14 +16,14 @@ module Kinksync
 
     describe '#sync' do
       before do
-        Kinksync.configure { |config| config.remote_path = '~/remote/path/' }
+        Kinksync.configure { |config| config.cloud_path = '~/remote/path/' }
         @multi_dir, @one_dir = create_directory_tree('~/subdir')
       end
       context 'when path does not have subdirectories' do
         it 'copies all files to twin path' do
           Path2Sync.new(@one_dir).sync
           local = Find.find(@one_dir)
-          remote = Find.find(Kinksync.configuration.remote_path + @one_dir)
+          remote = Find.find(Kinksync.configuration.cloud_path + @one_dir)
           expect(equal_directories_content?(local, remote)).to be true
         end
       end
@@ -31,7 +31,7 @@ module Kinksync
         it 'copies all files to twin path' do
           Path2Sync.new(@multi_dir).sync
           local = Find.find(@multi_dir)
-          remote = Find.find(Kinksync.configuration.remote_path + @multi_dir)
+          remote = Find.find(Kinksync.configuration.cloud_path + @multi_dir)
           expect(equal_directories_content?(local, remote)).to be true
         end
       end

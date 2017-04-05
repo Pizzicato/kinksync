@@ -8,23 +8,23 @@ module Kinksync
       end
       context "when there isn't a config file" do
         it 'has nil values for all its attributes' do
-          expect(Configuration.new.remote_path).to be_nil
+          expect(Configuration.new.cloud_path).to be_nil
         end
       end
       context 'when there is a config file' do
         it 'gets attribute values from config file' do
           config = Configuration.new
-          config.remote_path = '/test/path'
+          config.cloud_path = '/test/path'
           config.reset
-          expect(config.remote_path).to be_nil
-          expect(Configuration.new.remote_path).to eq('/test/path')
+          expect(config.cloud_path).to be_nil
+          expect(Configuration.new.cloud_path).to eq('/test/path')
         end
       end
     end
 
     describe '.reset' do
       it 'deletes config file' do
-        Configuration.new.remote_path = '/test/path'
+        Configuration.new.cloud_path = '/test/path'
         expect(File.exist?(Configuration::CONFIG_FILE)).to be true
         Configuration.reset
         expect(File.exist?(Configuration::CONFIG_FILE)).to be false
@@ -34,9 +34,9 @@ module Kinksync
     describe '#reset' do
       it 'sets all attribute values to nil' do
         config = Configuration.new
-        config.remote_path = '/test/path'
+        config.cloud_path = '/test/path'
         config.reset
-        expect(config.remote_path).to be_nil
+        expect(config.cloud_path).to be_nil
       end
     end
 
@@ -46,25 +46,25 @@ module Kinksync
       end
       it 'returns false if all attribute values are set' do
         config = Configuration.new
-        config.remote_path = '/test/path'
+        config.cloud_path = '/test/path'
         expect(config.valid?).to be true
       end
     end
 
-    # #remote_path method tests covered in .new examples
-    describe '#remote_path=' do
+    # #cloud_path method tests covered in .new examples
+    describe '#cloud_path=' do
       context 'when path exist' do
         before do
           Configuration.reset
           @config = Configuration.new
-          @config.remote_path = '/test/path'
+          @config.cloud_path = '/test/path'
         end
         it 'can set value' do
-          expect(@config.remote_path).to eq('/test/path')
+          expect(@config.cloud_path).to eq('/test/path')
         end
         it 'saves value to config file' do
           f_config = YAML.load_file(Configuration::CONFIG_FILE)
-          expect(f_config[:remote_path]).to eq('/test/path')
+          expect(f_config[:cloud_path]).to eq('/test/path')
         end
       end
       context "when path doesn't exist" do

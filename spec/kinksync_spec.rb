@@ -7,28 +7,28 @@ describe Kinksync, '#configuration' do
         Kinksync.reset
       end
       it 'returns nil remote path' do
-        expect(Kinksync.configuration.remote_path).to be_nil
+        expect(Kinksync.configuration.cloud_path).to be_nil
       end
     end
 
     context 'when initialized' do
       before do
-        @remote_path = 'remote/path/'
+        @cloud_path = 'remote/path/'
 
         Kinksync.configure do |config|
-          config.remote_path = @remote_path
+          config.cloud_path = @cloud_path
         end
       end
 
       it 'returns given absolute remote path' do
-        expect(Kinksync.configuration.remote_path).to eq(File.expand_path(@remote_path))
+        expect(Kinksync.configuration.cloud_path).to eq(File.expand_path(@cloud_path))
       end
     end
   end
   describe '#sync' do
     before do
-      Kinksync.configure { |config| config.remote_path = '~/remote/path/' }
-      path = Kinksync.configuration.remote_path + '/subdir'
+      Kinksync.configure { |config| config.cloud_path = '~/remote/path/' }
+      path = Kinksync.configuration.cloud_path + '/subdir'
       @base_dir, @one_dir, @multi_dir = create_directory_tree(path)
     end
     context 'when no file or directories provided' do

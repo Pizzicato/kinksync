@@ -1,5 +1,7 @@
 require 'find'
 require 'yaml'
+require 'optparse'
+require 'io/console'
 
 require 'kinksync/version'
 require 'kinksync/configuration'
@@ -7,7 +9,7 @@ require 'kinksync/path_2_sync'
 require 'kinksync/file_2_sync'
 require 'kinksync/errors/configuration'
 require 'kinksync/errors/path_2_sync'
-
+require 'kinksync/cli/options_parser'
 ##
 # Kynsync parent module for all classes.
 # Provides methods for configuration and synchronization of a group of files
@@ -24,12 +26,12 @@ module Kinksync
   #
   # @param [block]
   #    Values:
-  #      - remote_path: path to mounting cloud storage location
+  #      - cloud_path: path to mounting cloud storage location
   #
   # @example
   #   Kinksync.configure do |config|
-  #     config.remote_path = '/home/pablo/MEGA/kinksync/'
-  #     config.log_file = config.remote_path + 'kinksync.log'
+  #     config.cloud_path = '/home/pablo/MEGA/kinksync/'
+  #     config.log_file = config.cloud_path + 'kinksync.log'
   #   end
   #
   def self.configure
@@ -60,7 +62,7 @@ module Kinksync
   #
   def self.sync(path = nil)
     return unless configuration.valid?
-    path ||= configuration.remote_path
+    path ||= configuration.cloud_path
     Path2Sync.new(path).sync
   end
 end

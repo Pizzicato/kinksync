@@ -47,9 +47,9 @@ module Kinksync
     #
     def twin_file(file)
       if remote? file
-        file.sub(Kinksync.configuration.remote_path, '')
+        file.sub(Kinksync.configuration.cloud_path, '')
       else
-        Kinksync.configuration.remote_path + file
+        Kinksync.configuration.cloud_path + file
       end
     end
 
@@ -59,7 +59,7 @@ module Kinksync
     # @param file [String]
     #
     def remote?(file)
-      File.dirname(file).start_with?(Kinksync.configuration.remote_path)
+      File.dirname(file).start_with?(Kinksync.configuration.cloud_path)
     end
   end
 end
