@@ -4,7 +4,7 @@ module Kinksync
   describe 'File2Sync' do
     describe '#initialize' do
       before do
-        Kinksync.configure { |config| config.cloud_path = 'remote/path/' }
+        Kinksync.configure { |config| config.cloud_path = 'cloud/path/' }
       end
 
       it 'raises exception if file argument not provided' do
@@ -20,7 +20,7 @@ module Kinksync
 
     describe '#sync' do
       before do
-        Kinksync.configure { |config| config.cloud_path = '~/remote/path/' }
+        Kinksync.configure { |config| config.cloud_path = '~/cloud/path/' }
         @dir = File.expand_path('~/subdir')
         @twin_dir = Kinksync.configuration.cloud_path + @dir
         @file = @dir + '/test_file.test'

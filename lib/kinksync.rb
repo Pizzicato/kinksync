@@ -1,7 +1,7 @@
 require 'find'
 require 'yaml'
 require 'optparse'
-require 'io/console'
+require 'colorize'
 
 require 'kinksync/version'
 require 'kinksync/configuration'
@@ -9,7 +9,10 @@ require 'kinksync/path_2_sync'
 require 'kinksync/file_2_sync'
 require 'kinksync/errors/configuration'
 require 'kinksync/errors/path_2_sync'
+require 'kinksync/cli'
 require 'kinksync/cli/options_parser'
+require 'kinksync/cli/ui'
+
 ##
 # Kynsync parent module for all classes.
 # Provides methods for configuration and synchronization of a group of files
@@ -19,7 +22,10 @@ module Kinksync
   class << self
     # Configuration class instance
     attr_writer :configuration
+    attr_reader :synced
   end
+
+  @synced = []
 
   # Configures a Kynksync module with the values provided through the block
   # it recieves
@@ -31,7 +37,6 @@ module Kinksync
   # @example
   #   Kinksync.configure do |config|
   #     config.cloud_path = '/home/pablo/MEGA/kinksync/'
-  #     config.log_file = config.cloud_path + 'kinksync.log'
   #   end
   #
   def self.configure
@@ -52,17 +57,26 @@ module Kinksync
     @configuration.reset
   end
 
-  # Syncs a path recursively or file recieved as argument. If no arg is provided
-  # syncs all files in remote path
+  # Syncs lists of files and paths recieved as arguments. By default it
+  # syncs all files in remote path.
   #
-  # @param paths [String] Path to sync
+  # Removes each element of the paths array once synced
+  #
+  # @param paths [Array of Strings] List of files and paths to sync
   #
   # @example
-  #   Kinksync.sync('this/is/a/path')
+  #   Kinksync.sync([
+  #     'a_file.mp3',
+  #     '/an/absolute/path/',
+  #     'another_file.avi',
+  #     'a/relative/path'
+  #   ])
   #
-  def self.sync(path = nil)
-    return unless configuration.valid?
-    path ||= configuration.cloud_path
-    Path2Sync.new(path).sync
+  def self.sync!(paths = [])
+    paths = paths.empty? ? [configuration.cloud_path] : paths
+    paths.each do |p|
+      paths.shift
+      @synced += Path2Sync.new(p).sync
+    end
   end
 end

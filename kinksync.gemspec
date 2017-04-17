@@ -1,4 +1,5 @@
 # coding: utf-8
+
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'kinksync/version'
@@ -9,7 +10,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Pablo']
   spec.email         = ['pabloguaza@gmail.com']
 
-  spec.summary       = 'Sync files all over directory tree with any cloud storage mounted on your file system'
+  spec.summary       = 'Sync files all over directory tree with any cloud ' \
+                      'storage mounted on your file system'
   spec.homepage      = 'https://github.com/Pizzicato/kinksync'
   spec.license       = 'MIT'
 
@@ -21,7 +23,8 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_development_dependency 'bundler', '~> 1.14'
-  spec.add_development_dependency 'rake', '~> 10.0'
+  spec.add_development_dependency 'rake', '~> 12.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'fakefs', '~> 0.10'
+  spec.add_dependency 'colorize', '~> 0.8'
 end

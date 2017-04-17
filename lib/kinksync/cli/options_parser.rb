@@ -6,23 +6,28 @@ module Kinksync
       # Options specified on the command line
       attr_reader :options
 
-      def self.parse(args)
-        begin
-          OptionParser.new do |parser|
-            Options.define_options(parser)
-            parser.parse!(args)
-          end
-        rescue OptionParser::InvalidOption
-          puts "Error: Invalid option. See 'kinksync --help'"
-        rescue OptionParser::MissingArgument
-          puts 'Error: Add cloud path location after -c or --cloud_path. ' \
-                "See 'kinksync --help'"
-        end
+      #
+      # Parses options of kinksync command using OptionParser
+      #
+      # @param args [Array of Strings] ARGV
+      def self.parse!(args)
+        OptionParser.new { |opts| Options.define_options(opts).parse!(args) }
+      rescue OptionParser::InvalidOption
+        puts "#{'Error'.light_red}: Invalid option. Run kinksync --help"
+        exit 1
+      rescue OptionParser::MissingArgument
+        puts "#{'Error'.light_red}: Add cloud path location after " \
+                    '-c or --cloud_path. Run kinksync --help'
+        exit 1
       end
 
       #
-      # CLI options -> cloud_path, version and help message
+      # CLI options defining functionality usinng OptionParser
       class Options
+        #
+        # Defines options for kinksync command
+        #
+        # @param parser [OptionParser]
         def self.define_options(parser)
           banner(parser)
           cloud_path_option(parser)
@@ -36,8 +41,10 @@ module Kinksync
           end
         end
 
-        private
-
+        #
+        # Defines banner for kinksync command
+        #
+        # @param parser [OptionParser]
         def self.banner(parser)
           parser.banner = 'Kinksync can sync files located all over the ' \
           'directory tree in different computers using any ' \
@@ -48,16 +55,19 @@ module Kinksync
           parser.separator 'Options:'
         end
 
+        #
+        # Defines cloud_path option for kinksync command
+        #
+        # @param parser [OptionParser]
         def self.cloud_path_option(parser)
-          parser.on('-c',
-                    '--cloud_path CLOUD_PATH',
+          parser.on('-c', '--cloud_path CLOUD_PATH',
                     'Set cloud path mount point location. If ' \
-                    "it's already defined, it will " \
-                    'be changed.') do |c|
-                      Kinksync.configuration.cloud_path = c
-                    end
-
+                    "it's already defined, it will be changed") do |cloud_path|
+            Kinksync.configure { |config| config.cloud_path = cloud_path }
+          end
         end
+
+        private_class_method :banner, :cloud_path_option
       end
     end
   end

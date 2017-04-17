@@ -29,7 +29,7 @@ $ kinksync [OPTION] [PATHS_LIST]
 ```
 
 ### Without arguments
-Sync all files under remote cloud path with local storage
+Sync all files under cloud path with local storage
 
 ### Optional arguments
 * `-h, --help` Show this help message and exit

@@ -1,5 +1,6 @@
 module Kinksync
   module Error
-    class InvalidRemotePath < StandardError; end
+    class InvalidCloudPath < StandardError; end
+    class InvalidCloudPathFromConfigFile < StandardError; end
   end
 end

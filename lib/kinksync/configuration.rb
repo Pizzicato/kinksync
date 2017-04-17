@@ -6,6 +6,8 @@ module Kinksync
     CONFIG_DIR = File.expand_path('~/.kinksync').freeze
     # Configuration file location
     CONFIG_FILE = (CONFIG_DIR + '/config.yml').freeze
+    # File to save log
+    SYNC_LOG = (CONFIG_DIR + '/last_sync.log').freeze
 
     # Initializes Configuration instance with nil values unless
     # config file was created previously
@@ -26,26 +28,17 @@ module Kinksync
       @config = empty_config
     end
 
-    # Checks if configuration is valid (no nil values)
-    #
-    def valid?
-      !@config.value?(nil) && Dir.exist?(@config[:cloud_path])
-    end
-
     # returns cloud_path value
     def cloud_path
       @config[:cloud_path]
     end
 
-    # Sets absolute path of remote path
+    # Sets absolute path of cloud path
     #
-    # @return [String] remote path
+    # @return [String] cloud path
     def cloud_path=(path)
-      path = File.expand_path(path)
-      unless File.directory?(path)
-        raise Error::InvalidRemotePath, "Not a valid directory: #{path}"
-      end
-      @config[:cloud_path] = path
+      raise Error::InvalidCloudPath unless File.directory?(path)
+      @config[:cloud_path] = File.expand_path(path)
       config_to_file
     end
 
@@ -58,14 +51,16 @@ module Kinksync
     def config_to_file
       FileUtils.mkdir_p(CONFIG_DIR) unless File.directory?(CONFIG_DIR)
       File.open(CONFIG_FILE, 'w') { |file| YAML.dump(@config, file) }
-      @config
     end
 
     def config_from_file
       return unless File.exist?(CONFIG_FILE)
-      # Raise error if File not YAML
-      f_config = YAML.load_file(CONFIG_FILE)
-      (f_config.keys == empty_config.keys) && !f_config.value?(nil) ? f_config : nil
+      config = YAML.load_file(CONFIG_FILE)
+      # Raise error if cloud path from config file is not valid
+      unless File.directory?(config[:cloud_path])
+        raise Error::InvalidCloudPathFromConfigFile
+      end
+      config
     end
   end
 end

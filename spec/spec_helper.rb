@@ -38,18 +38,18 @@ def create_directory_tree(base_dir)
   [base_dir, one_dir, multi_dir]
 end
 
-def equal_directories_content?(local, remote)
-  local.sort == remote.map { |e| e.sub(Kinksync.configuration.cloud_path, '') }.sort
+def equal_directories_content?(local, cloud)
+  local.sort == cloud.map { |e| e.sub(Kinksync.configuration.cloud_path, '') }.sort
 end
 
 def twin_path(path)
-  if remote? path
+  if in_cloud? path
     path.sub(Kinksync.configuration.cloud_path, '')
   else
     Kinksync.configuration.cloud_path + path
   end
 end
 
-def remote?(path)
+def in_cloud?(path)
   File.dirname(path).start_with?(Kinksync.configuration.cloud_path)
 end

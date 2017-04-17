@@ -7,9 +7,10 @@ module Kinksync
     #
     # Configures a File2Sync class
     #
-    # @param file [String] local or remote file to sync
+    # @param file [String] local or cloud file to sync
     #
     def initialize(file)
+      raise Error::InvalidSyncFile unless File.exist?(file)
       @file = file
       @twin_file = twin_file(file)
     end
@@ -46,7 +47,7 @@ module Kinksync
     # @param file [String] file to get twin from
     #
     def twin_file(file)
-      if remote? file
+      if in_cloud? file
         file.sub(Kinksync.configuration.cloud_path, '')
       else
         Kinksync.configuration.cloud_path + file
@@ -54,11 +55,11 @@ module Kinksync
     end
 
     #
-    # Decides whether a file is remote or local
+    # Decides whether a file is in cloud or local location
     #
     # @param file [String]
     #
-    def remote?(file)
+    def in_cloud?(file)
       File.dirname(file).start_with?(Kinksync.configuration.cloud_path)
     end
   end
